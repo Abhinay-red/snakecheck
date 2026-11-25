@@ -8,8 +8,8 @@ How the split is made
   2. Images are grouped: every photo by the same observer, and every photo that
      is a near-duplicate of another, ends up in the same group. A group goes to
      exactly one split, so no person's photos (or reposts) leak across splits.
-  3. Groups from the `main` pool (India) are sampled into val and test.
-     The `external_test` pool (other countries, your own photos) becomes
+  3. Groups from the `main` pool (India minus Telangana) are sampled into val and test.
+     The `external_test` pool (Telangana, your own photos) becomes
      `test_external`. External groups that share an observer or photo with the
      main pool are dropped.
   4. `--freeze` writes val, test and test_external to manifests/eval_frozen.csv

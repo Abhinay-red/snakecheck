@@ -13,7 +13,7 @@ SnakeCheck tells you from a photo whether a snake is venomous or not. The plan i
 
 | File | What it does |
 |---|---|
-| `config/dataset.yaml` | The dataset definition: classes, species per class (including look-alike hard negatives), countries per pool, licenses, caps and split settings. |
+| `config/dataset.yaml` | The dataset definition: classes, species per class (including look-alike hard negatives), places per pool (India for training, Telangana held out for testing), licenses, caps and split settings. |
 | `scripts/fetch_dataset.py` | Downloads iNaturalist photos in small named batches and logs every image in `manifests/catalog.csv`. Can restore the whole dataset from the catalog. |
 | `scripts/add_local_images.py` | Adds photos from elsewhere (your own photos, SnakeCLEF, ropes and sticks for `not_a_snake`), by default into the external test set. |
 | `scripts/build_splits.py` | Removes near-duplicate photos, splits by observer, freezes val/test in `manifests/eval_frozen.csv`, and can write `split/class/` folders. |
@@ -37,10 +37,11 @@ did it. The pipeline below is built around those.
 - **No leaks.** All photos by one observer, and all near-duplicate photos
   (perceptual hash), go to the same split. The script stops with an error if
   any observer, observation or duplicate group shows up in two splits.
-- **A real test from another source.** `test` is India photos from observers
-  the model never saw. `test_external` comes from other countries (Sri Lanka,
-  Nepal, Bangladesh, Pakistan) plus any photos you add yourself. Neither is
-  used for training or tuning; tune thresholds on `val` only.
+- **A real local test.** `test` is India photos from observers the model never
+  saw. `test_external` is Telangana, the area around Hyderabad where the app
+  will be used, which is left out of training completely, plus any photos you
+  add yourself. Neither is used for training or tuning; tune thresholds on
+  `val` only.
 - **Frozen evaluation.** After `--freeze`, val, test and test_external never
   change. New batches only go to train, and new photos from an observer who is
   already in val or test are kept out of training.
@@ -68,7 +69,7 @@ python scripts/fetch_dataset.py resolve
 python scripts/fetch_dataset.py add --batch smoke --per-class 5
 python scripts/fetch_dataset.py status
 
-# 3. First real batch, then the external test pool
+# 3. First real batch (rest of India), then the Telangana test pool
 python scripts/fetch_dataset.py add --batch b001 --per-class 600
 python scripts/fetch_dataset.py add --batch t001 --pool external_test --per-class 150
 

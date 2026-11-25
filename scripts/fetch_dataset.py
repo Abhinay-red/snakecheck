@@ -11,7 +11,7 @@ Commands
     resolve                          look up taxon and place ids, write manifests/taxa_resolved.json
     add --batch b001 --per-class 200 download up to 200 NEW images per class (respects caps)
     add --batch t001 --pool external_test --per-class 100
-                                     download the different-source test pool
+                                     download the held-out Telangana test pool
     restore                          re-download every catalog image that is missing on disk
     status                           counts per class, pool, group and batch
 
@@ -56,22 +56,26 @@ def resolve_taxon(client: INatClient, name: str) -> dict:
 
 
 def resolve_place(client: INatClient, place) -> dict:
+    """Resolve a country or state name (or a numeric id) to an iNaturalist place."""
     if isinstance(place, int):
         return {"id": place, "name": str(place)}
     data = client.get("places/autocomplete", {"q": place, "per_page": 30})
     results = data.get("results", [])
-    for p in results:
-        names = {(p.get("name") or "").lower(), (p.get("display_name") or "").lower()}
-        if place.lower() in names and p.get("admin_level") == 0:
-            return {"id": p["id"], "name": p.get("display_name") or p.get("name")}
+    matches = [p for p in results
+               if place.lower() in {(p.get("name") or "").lower(), (p.get("display_name") or "").lower(),
+                                    (p.get("display_name") or "").split(",")[0].strip().lower()}
+               and p.get("admin_level") in (0, 1, 10)]   # country or state
+    if matches:
+        p = min(matches, key=lambda p: p.get("admin_level"))
+        return {"id": p["id"], "name": p.get("display_name") or p.get("name")}
     cands = ", ".join(f"{p.get('display_name')} ({p.get('id')}, level {p.get('admin_level')})"
                       for p in results[:5]) or "none"
-    raise SystemExit(f"Could not resolve country '{place}'. Candidates: {cands}. "
+    raise SystemExit(f"Could not resolve place '{place}'. Candidates: {cands}. "
                      "Put the numeric place id in config/dataset.yaml instead.")
 
 
 def cmd_resolve(cfg: dict, paths: Paths, client: INatClient) -> dict:
-    out = {"taxa": {}, "places": {}}
+    out = {"taxa": {}, "places": {}, "exclude_places": {}}
     for cls, ccfg in cfg["classes"].items():
         for t in ccfg["taxa"]:
             r = resolve_taxon(client, t["name"])
@@ -79,7 +83,11 @@ def cmd_resolve(cfg: dict, paths: Paths, client: INatClient) -> dict:
             print(f"  {cls:<16} {t['name']:<24} -> {r['id']:>8}  ({r.get('observations_count')} obs)")
     for pool, pcfg in cfg["pools"].items():
         out["places"][pool] = [resolve_place(client, p) for p in pcfg["places"]]
-        print(f"  pool {pool}: " + ", ".join(f"{p['name']} ({p['id']})" for p in out["places"][pool]))
+        out["exclude_places"][pool] = [resolve_place(client, p) for p in pcfg.get("exclude_places", [])]
+        msg = ", ".join(f"{p['name']} ({p['id']})" for p in out["places"][pool])
+        if out["exclude_places"][pool]:
+            msg += " minus " + ", ".join(f"{p['name']} ({p['id']})" for p in out["exclude_places"][pool])
+        print(f"  pool {pool}: {msg}")
     save_json(paths.resolved, out)
     print(f"Wrote {paths.resolved}")
     return out
@@ -126,6 +134,7 @@ class Fetcher:
         self.observer_count = Counter((r["class"], r["observer_id"]) for r in catalog)
         self.licenses = {l.lower() for l in self.dl["licenses"]}
         self.place_ids = ",".join(str(p["id"]) for p in self.resolved["places"][pool])
+        self.not_in_place = ",".join(str(p["id"]) for p in self.resolved.get("exclude_places", {}).get(pool, []))
         self.skips = Counter()
 
     def _take_observation(self, obs: dict, cls: str, group: str, taxon: dict, want: int) -> list[dict]:
@@ -211,6 +220,8 @@ class Fetcher:
                 "order_by": "id", "order": "asc", "id_above": st["id_above"],
                 "per_page": self.dl["page_size"],
             }
+            if self.not_in_place:
+                params["not_in_place"] = self.not_in_place
             results = self.client.get("observations", params).get("results", [])
             if not results:
                 st["exhausted"] = True

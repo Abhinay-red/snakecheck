@@ -37,6 +37,7 @@ class FakeINat:
     def __init__(self, dup_map=None):
         self.dup_map = dup_map or {}   # photo id -> seed of another photo (a repost)
         self.obs = {}
+        self.calls = []
 
     def _observations(self, taxon_id, place_ids):
         key = (taxon_id, place_ids)
@@ -61,7 +62,8 @@ class FakeINat:
             return {"results": [{"id": abs(hash(params["q"])) % 99991 + 1, "name": params["q"]}]}
         if path == "places/autocomplete":
             pid = 1 if params["q"] == "India" else 2
-            return {"results": [{"id": pid, "name": params["q"], "admin_level": 0}]}
+            return {"results": [{"id": pid, "name": params["q"], "admin_level": 0 if pid == 1 else 1}]}
+        self.calls.append(params)
         allp = self._observations(params["taxon_id"], params["place_id"])
         res = [o for o in allp if o["id"] > params["id_above"]]
         return {"results": res[: params["per_page"]]}
@@ -77,7 +79,8 @@ class FakeINat:
 def env(tmp_path):
     cfg = load_config()
     cfg = copy.deepcopy(cfg)
-    cfg["pools"] = {"main": {"places": ["India"]}, "external_test": {"places": ["Sri Lanka"]}}
+    cfg["pools"] = {"main": {"places": ["India"], "exclude_places": ["Telangana"]},
+                    "external_test": {"places": ["Telangana"]}}
     cfg["splits"]["min_eval_per_class"] = 3
     paths = Paths(root=tmp_path, config=Path("unused"), manifests=tmp_path / "manifests",
                   images=tmp_path / "data" / "images")
@@ -102,6 +105,8 @@ def test_download_logs_provenance_and_respects_limits(env):
     assert max(Counter(r["observation_id"] for r in rows).values()) <= cfg["limits"]["photos_per_observation"]
     assert max(Counter((r["class"], r["observer_id"]) for r in rows).values()) \
         <= cfg["limits"]["photos_per_observer_per_class"]
+    # main pool asks for India minus Telangana; the test pool asks for Telangana only
+    assert all(c["place_id"] == "1" and c["not_in_place"] == "2" for c in client.calls)
     hard = [r for r in rows if r["group"] == "hard_negative"]
     assert len(hard) > 20                                     # hard negatives get most of non_venomous
 
