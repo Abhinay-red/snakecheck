@@ -1,0 +1,100 @@
+# SnakeCheck dataset definition.
+#
+# Everything the download and split scripts do is driven by this file, so a
+# dataset can be rebuilt exactly from it plus the files in manifests/.
+# Taxa and places are given by NAME. `fetch_dataset.py resolve` looks them up
+# on iNaturalist once and stores the ids in manifests/taxa_resolved.json, so a
+# typo fails loudly instead of silently downloading nothing.
+
+api: https://api.inaturalist.org/v1
+
+download:
+  photo_size: medium        # iNaturalist size: medium (~500 px long side) or large (~1024 px)
+  min_side: 224             # drop photos smaller than this on the short side
+  quality_grade: research
+  captive: false            # wild animals only, no zoo/pet photos
+  # Licenses allowed. Drop the -nc ones if the app will ever be sold.
+  licenses: [cc0, cc-by, cc-by-sa, cc-by-nd, cc-by-nc, cc-by-nc-sa, cc-by-nc-nd]
+  request_delay_s: 1.0      # iNaturalist asks for about 1 request per second
+  page_size: 200
+
+# Where photos come from. train and val come only from `main`.
+# `external_test` is a different source (other countries, different observers)
+# that is used ONLY for the final test, never for training or tuning.
+pools:
+  main:
+    places: [India]
+  external_test:
+    places: [Sri Lanka, Nepal, Bangladesh, Pakistan]
+
+# Limits that stop one person or one observation from dominating a class.
+# Last time one source dominated the data and the metrics were inflated.
+limits:
+  photos_per_observation: 2
+  photos_per_observer_per_class: 25
+
+splits:
+  val_fraction: 0.15        # of each class in the main pool, by observer group
+  test_fraction: 0.15       # in-distribution test (India, unseen observers)
+  seed: 1337
+  near_duplicate_hamming: 6 # perceptual-hash distance (0-64) counted as the same photo
+  min_eval_per_class: 80    # --freeze refuses if val or test would be smaller than this
+
+# Classes. `cap` is the most images a class may hold in the main pool, so the
+# classes grow together in small steps instead of one big pull.
+# Within a class, each taxon gets a share of every new batch by `weight`.
+classes:
+  non_venomous:
+    venomous: false
+    cap: 3500
+    taxa:
+      # Hard negatives: harmless snakes that look like the venomous ones.
+      # Rat snakes being called cobras was the main error last time.
+      - {name: Ptyas mucosa,          group: hard_negative, weight: 4, looks_like: cobra}
+      - {name: Fowlea piscator,       group: hard_negative, weight: 2, looks_like: cobra}
+      - {name: Lycodon aulicus,       group: hard_negative, weight: 2, looks_like: common_krait}
+      - {name: Lycodon striatus,      group: hard_negative, weight: 1, looks_like: common_krait}
+      - {name: Eryx conicus,          group: hard_negative, weight: 2, looks_like: russells_viper}
+      - {name: Python molurus,        group: hard_negative, weight: 1, looks_like: russells_viper}
+      - {name: Boiga trigonata,       group: hard_negative, weight: 2, looks_like: sawscaled_viper}
+      - {name: Oligodon arnensis,     group: hard_negative, weight: 1, looks_like: common_krait}
+      # Other common harmless snakes in India.
+      - {name: Coelognathus helena,   group: core, weight: 2}
+      - {name: Ahaetulla nasuta,      group: core, weight: 1}
+      - {name: Dendrelaphis tristis,  group: core, weight: 1}
+      - {name: Amphiesma stolatum,    group: core, weight: 1}
+      - {name: Eryx johnii,           group: core, weight: 1}
+      - {name: Indotyphlops braminus, group: core, weight: 1}
+  cobra:
+    venomous: true
+    cap: 2500
+    taxa:
+      - {name: Naja naja, group: core, weight: 1}
+  russells_viper:
+    venomous: true
+    cap: 2500
+    taxa:
+      - {name: Daboia russelii, group: core, weight: 1}
+  common_krait:
+    venomous: true
+    cap: 2500
+    taxa:
+      - {name: Bungarus caeruleus, group: core, weight: 1}
+  sawscaled_viper:
+    venomous: true
+    cap: 2500
+    taxa:
+      - {name: Echis carinatus, group: core, weight: 1}
+  # Not a snake: photos the app should answer "not a snake / unsure" for.
+  # Lizards, worms, caecilians and eels look snake-like; ropes, hoses and
+  # sticks can be added from your own photos with add_local_images.py.
+  not_a_snake:
+    venomous: null
+    cap: 1500
+    taxa:
+      - {name: Gymnophiona,      group: core, weight: 2}
+      - {name: Crassiclitellata, group: core, weight: 2}
+      - {name: Anguilliformes,   group: core, weight: 1}
+      - {name: Agamidae,         group: core, weight: 2}
+      - {name: Scincidae,        group: core, weight: 2}
+      - {name: Varanidae,        group: core, weight: 1}

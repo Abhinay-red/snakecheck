@@ -1,58 +1,44 @@
 """
-zip_for_colab.py
+zip_for_colab.py - zip the materialized splits for Google Drive / Colab.
 
-Zips data/raw/ into a single file ready to upload to Google Drive.
-Run this once the full dataset download is complete.
+Run build_splits.py --materialize data/splits first. The zip holds
+<split>/<class>/<image> plus the manifests, so the notebook trains on train,
+tunes on val, and only touches test and test_external once at the end.
 
-Usage:
     python scripts/zip_for_colab.py
-    python scripts/zip_for_colab.py --out my_drive_folder/data.zip
+    python scripts/zip_for_colab.py --splits data/splits --out data/snakecheck_data.zip
 """
 
 import argparse
 import zipfile
+from collections import Counter
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent.parent / "data" / "raw"
-DEFAULT_OUT = Path(__file__).parent.parent / "data" / "snakecheck_data.zip"
-
-CLASS_NAMES = ["non_venomous", "cobra", "russells_viper", "common_krait", "sawscaled_viper"]
-IMG_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+ROOT = Path(__file__).resolve().parent.parent
+IMG_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    args = parser.parse_args()
-
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-
-    print("Counting images...")
-    total = 0
-    for cls in CLASS_NAMES:
-        d = DATA_DIR / cls
-        n = len([f for f in d.glob("*") if f.suffix.lower() in IMG_EXTS]) if d.exists() else 0
-        print(f"  {cls:<25} {n:>5} images")
-        total += n
-    print(f"  {'TOTAL':<25} {total:>5} images\n")
-
-    print(f"Zipping to {args.out} ...")
-    with zipfile.ZipFile(args.out, "w", zipfile.ZIP_DEFLATED) as zf:
-        for cls in CLASS_NAMES:
-            d = DATA_DIR / cls
-            if not d.exists():
-                print(f"  WARNING: {d} not found, skipping")
-                continue
-            files = [f for f in d.glob("*") if f.suffix.lower() in IMG_EXTS]
-            for f in files:
-                # Inside the zip: class_name/filename.jpg
-                zf.write(f, arcname=f"{cls}/{f.name}")
-
-    size_mb = args.out.stat().st_size / 1e6
-    print(f"Done. {args.out.name}  ({size_mb:.1f} MB)")
-    print(f"\nNext: upload {args.out} to Google Drive at:")
-    print("  My Drive/snakecheck/data.zip")
-    print("Then open SnakeCheck_Training.ipynb in Colab and run all cells.")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--splits", type=Path, default=ROOT / "data" / "splits")
+    ap.add_argument("--out", type=Path, default=ROOT / "data" / "snakecheck_data.zip")
+    a = ap.parse_args()
+    if not a.splits.is_dir():
+        raise SystemExit(f"{a.splits} not found. Run: python scripts/build_splits.py --materialize {a.splits}")
+    files = [f for f in a.splits.rglob("*") if f.suffix.lower() in IMG_EXTS]
+    counts = Counter(f.relative_to(a.splits).parts[:2] for f in files)
+    for (split, cls), n in sorted(counts.items()):
+        print(f"  {split:<15}{cls:<18}{n:>6}")
+    a.out.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(a.out, "w", zipfile.ZIP_STORED) as zf:   # JPEGs do not compress further
+        for f in files:
+            zf.write(f, arcname=str(f.relative_to(a.splits)))
+        for m in ("eval_frozen.csv", "splits.csv", "split_report.md"):
+            p = ROOT / "manifests" / m
+            if p.exists():
+                zf.write(p, arcname=f"manifests/{m}")
+    print(f"Wrote {a.out} ({a.out.stat().st_size / 1e6:.1f} MB, {len(files)} images)")
+    print("Upload it to My Drive/snakecheck/data.zip for the Colab notebook.")
 
 
 if __name__ == "__main__":
