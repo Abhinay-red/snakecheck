@@ -1,0 +1,194 @@
+{
+  "external_test|cobra|Naja naja": {
+    "exhausted": true,
+    "id_above": 410246799
+  },
+  "external_test|common_krait|Bungarus caeruleus": {
+    "exhausted": true,
+    "id_above": 414360194
+  },
+  "external_test|non_venomous|Ahaetulla nasuta": {
+    "exhausted": true,
+    "id_above": 0
+  },
+  "external_test|non_venomous|Amphiesma stolatum": {
+    "exhausted": false,
+    "id_above": 305742255
+  },
+  "external_test|non_venomous|Boiga trigonata": {
+    "exhausted": false,
+    "id_above": 384827738
+  },
+  "external_test|non_venomous|Coelognathus helena": {
+    "exhausted": false,
+    "id_above": 398875786
+  },
+  "external_test|non_venomous|Dendrelaphis tristis": {
+    "exhausted": false,
+    "id_above": 150810883
+  },
+  "external_test|non_venomous|Eryx conicus": {
+    "exhausted": false,
+    "id_above": 213072619
+  },
+  "external_test|non_venomous|Eryx johnii": {
+    "exhausted": true,
+    "id_above": 312098800
+  },
+  "external_test|non_venomous|Fowlea piscator": {
+    "exhausted": false,
+    "id_above": 152701341
+  },
+  "external_test|non_venomous|Indotyphlops braminus": {
+    "exhausted": false,
+    "id_above": 154654344
+  },
+  "external_test|non_venomous|Lycodon aulicus": {
+    "exhausted": true,
+    "id_above": 357106725
+  },
+  "external_test|non_venomous|Lycodon striatus": {
+    "exhausted": false,
+    "id_above": 409170029
+  },
+  "external_test|non_venomous|Oligodon arnensis": {
+    "exhausted": false,
+    "id_above": 289057874
+  },
+  "external_test|non_venomous|Ptyas mucosa": {
+    "exhausted": false,
+    "id_above": 274390654
+  },
+  "external_test|non_venomous|Python molurus": {
+    "exhausted": false,
+    "id_above": 324429413
+  },
+  "external_test|not_a_snake|Agamidae": {
+    "exhausted": false,
+    "id_above": 144728517
+  },
+  "external_test|not_a_snake|Anguilliformes": {
+    "exhausted": true,
+    "id_above": 0
+  },
+  "external_test|not_a_snake|Crassiclitellata": {
+    "exhausted": true,
+    "id_above": 0
+  },
+  "external_test|not_a_snake|Gymnophiona": {
+    "exhausted": true,
+    "id_above": 0
+  },
+  "external_test|not_a_snake|Scincidae": {
+    "exhausted": false,
+    "id_above": 158489743
+  },
+  "external_test|not_a_snake|Varanidae": {
+    "exhausted": false,
+    "id_above": 268336207
+  },
+  "external_test|russells_viper|Daboia russelii": {
+    "exhausted": true,
+    "id_above": 416682359
+  },
+  "external_test|sawscaled_viper|Echis carinatus": {
+    "exhausted": true,
+    "id_above": 373845000
+  },
+  "main|cobra|Naja naja": {
+    "exhausted": false,
+    "id_above": 219925891
+  },
+  "main|common_krait|Bungarus caeruleus": {
+    "exhausted": false,
+    "id_above": 369313813
+  },
+  "main|non_venomous|Ahaetulla nasuta": {
+    "exhausted": true,
+    "id_above": 0
+  },
+  "main|non_venomous|Amphiesma stolatum": {
+    "exhausted": false,
+    "id_above": 23315465
+  },
+  "main|non_venomous|Boiga trigonata": {
+    "exhausted": false,
+    "id_above": 120287824
+  },
+  "main|non_venomous|Coelognathus helena": {
+    "exhausted": false,
+    "id_above": 58691018
+  },
+  "main|non_venomous|Dendrelaphis tristis": {
+    "exhausted": false,
+    "id_above": 35484754
+  },
+  "main|non_venomous|Eryx conicus": {
+    "exhausted": false,
+    "id_above": 71290652
+  },
+  "main|non_venomous|Eryx johnii": {
+    "exhausted": false,
+    "id_above": 79668332
+  },
+  "main|non_venomous|Fowlea piscator": {
+    "exhausted": false,
+    "id_above": 27326131
+  },
+  "main|non_venomous|Indotyphlops braminus": {
+    "exhausted": false,
+    "id_above": 31905796
+  },
+  "main|non_venomous|Lycodon aulicus": {
+    "exhausted": false,
+    "id_above": 50893324
+  },
+  "main|non_venomous|Lycodon striatus": {
+    "exhausted": false,
+    "id_above": 58177111
+  },
+  "main|non_venomous|Oligodon arnensis": {
+    "exhausted": false,
+    "id_above": 64307281
+  },
+  "main|non_venomous|Ptyas mucosa": {
+    "exhausted": false,
+    "id_above": 55041562
+  },
+  "main|non_venomous|Python molurus": {
+    "exhausted": false,
+    "id_above": 33352823
+  },
+  "main|not_a_snake|Agamidae": {
+    "exhausted": false,
+    "id_above": 10488291
+  },
+  "main|not_a_snake|Anguilliformes": {
+    "exhausted": false,
+    "id_above": 73186344
+  },
+  "main|not_a_snake|Crassiclitellata": {
+    "exhausted": true,
+    "id_above": 414492338
+  },
+  "main|not_a_snake|Gymnophiona": {
+    "exhausted": true,
+    "id_above": 412636827
+  },
+  "main|not_a_snake|Scincidae": {
+    "exhausted": false,
+    "id_above": 29691580
+  },
+  "main|not_a_snake|Varanidae": {
+    "exhausted": false,
+    "id_above": 22698371
+  },
+  "main|russells_viper|Daboia russelii": {
+    "exhausted": false,
+    "id_above": 270490482
+  },
+  "main|sawscaled_viper|Echis carinatus": {
+    "exhausted": false,
+    "id_above": 353331669
+  }
+}
