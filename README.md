@@ -17,10 +17,10 @@ SnakeCheck tells you from a photo whether a snake is venomous or not. The plan i
 | `scripts/fetch_dataset.py` | Downloads iNaturalist photos in small named batches and logs every image in `manifests/catalog.csv`. Can restore the whole dataset from the catalog. |
 | `scripts/add_local_images.py` | Adds photos from elsewhere (your own photos, SnakeCLEF, ropes and sticks for `not_a_snake`), by default into the external test set. |
 | `scripts/build_splits.py` | Removes near-duplicate photos, splits by observer, freezes val/test in `manifests/eval_frozen.csv`, and can write `split/class/` folders. |
-| `scripts/zip_for_colab.py` | Zips the split folders and manifests for Google Drive / Colab. |
+| `scripts/zip_dataset.py` | Zips the split folders, manifests and training code into one file to upload to Kaggle (or Colab). |
 | `scripts/train.py` | Two-phase EfficientNetB0 training on the frozen splits (6 classes, class weights from train). Picks the venomous threshold on val, then scores test and test_external once and checks the launch gates. |
 | `scripts/snake_eval.py` | Evaluation: per-class recall, the venomous-vs-not view, threshold choice and launch gates. |
-| `SnakeCheck_Training.ipynb` | Colab notebook. It pulls `train.py` from this repo, so Colab and local runs train the same way, and exports INT8 TFLite only if the gates pass on both test sets. The old notebook with its saved outputs is in git history. |
+| `SnakeCheck_Training.ipynb` | Training notebook for Kaggle (also runs on Colab). It uses `train.py` from the dataset zip, so it trains the same way as local runs, and exports INT8 TFLite only if the gates pass on both test sets. The old notebook with its saved outputs is in git history. |
 | `tests/test_data_pipeline.py` | Offline tests of the data pipeline against a fake iNaturalist. |
 
 ## Building the dataset
@@ -79,9 +79,9 @@ python scripts/build_splits.py
 python scripts/build_splits.py --freeze
 git add manifests && git commit -m "Freeze eval set"
 
-# 5. Make folders for training and zip them for Colab
+# 5. Make folders for training and zip them for Kaggle
 python scripts/build_splits.py --materialize data/splits
-python scripts/zip_for_colab.py
+python scripts/zip_dataset.py
 
 # Later: grow in small steps, one batch at a time
 python scripts/fetch_dataset.py add --batch b002 --per-class 300
@@ -107,7 +107,31 @@ excluded. Run the tests with `python -m pytest tests -q`.
 
 ## Training
 
-Locally: `pip install -r requirements-train.txt`, then `python scripts/train.py`. On Colab: zip the splits (`python scripts/zip_for_colab.py`), upload to `My Drive/snakecheck/data.zip`, and run `SnakeCheck_Training.ipynb`. Each run saves the model, `config.json` (classes and the venomous threshold the app must use) and `metrics.json` for val, test and test_external.
+**On Kaggle** (the notebook is `SnakeCheck_Training.ipynb` in this repo):
+
+1. On your computer, after downloading and freezing the data:
+   `python scripts/build_splits.py --materialize data/splits`, then
+   `python scripts/zip_dataset.py`. This makes `data/snakecheck_data.zip`
+   with the images, the manifests and the training code.
+2. On kaggle.com: **Datasets > New Dataset**, upload the zip, give it a name
+   (for example `snakecheck-data`) and keep it private. Kaggle unzips it.
+   Next time, use **New Version** on the same dataset instead.
+3. **Code > New Notebook > File > Import Notebook**, and pick
+   `SnakeCheck_Training.ipynb` (download it from GitHub first).
+4. In the notebook's right panel: **Add Input** > your dataset, and
+   **Settings > Accelerator > GPU T4 x2** (or P100). Internet can stay off.
+5. **Save Version > Save & Run All (Commit)**. This keeps running if you close
+   the tab. When it is done, open the version's **Output** tab and download
+   `snakecheck_run.zip` (model, TFLite, `config.json`, `metrics.json`,
+   confusion matrices).
+
+**On Colab**: upload the same zip to `My Drive/snakecheck/data.zip`, set the
+runtime to T4 GPU and run all. Outputs go to `My Drive/snakecheck/models/`.
+
+**Locally**: `pip install -r requirements-train.txt`, then `python scripts/train.py`.
+
+Every run saves `config.json` (classes, and the venomous threshold the app
+must use) and `metrics.json` for val, test and test_external.
 
 ## Status
 
