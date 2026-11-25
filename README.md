@@ -18,8 +18,9 @@ SnakeCheck tells you from a photo whether a snake is venomous or not. The plan i
 | `scripts/add_local_images.py` | Adds photos from elsewhere (your own photos, SnakeCLEF, ropes and sticks for `not_a_snake`), by default into the external test set. |
 | `scripts/build_splits.py` | Removes near-duplicate photos, splits by observer, freezes val/test in `manifests/eval_frozen.csv`, and can write `split/class/` folders. |
 | `scripts/zip_for_colab.py` | Zips the split folders and manifests for Google Drive / Colab. |
-| `scripts/train.py` | Local version of the two-phase EfficientNetB0 training (not yet updated for the new splits). |
-| `SnakeCheck_Training.ipynb` | Colab notebook from the last run (not yet updated for the new splits). |
+| `scripts/train.py` | Two-phase EfficientNetB0 training on the frozen splits (6 classes, class weights from train). Picks the venomous threshold on val, then scores test and test_external once and checks the launch gates. |
+| `scripts/snake_eval.py` | Evaluation: per-class recall, the venomous-vs-not view, threshold choice and launch gates. |
+| `SnakeCheck_Training.ipynb` | Colab notebook. It pulls `train.py` from this repo, so Colab and local runs train the same way, and exports INT8 TFLite only if the gates pass on both test sets. The old notebook with its saved outputs is in git history. |
 | `tests/test_data_pipeline.py` | Offline tests of the data pipeline against a fake iNaturalist. |
 
 ## Building the dataset
@@ -104,6 +105,10 @@ python scripts/build_splits.py --extend-external
 split, hard negatives, the biggest single-observer share, and why images were
 excluded. Run the tests with `python -m pytest tests -q`.
 
+## Training
+
+Locally: `pip install -r requirements-train.txt`, then `python scripts/train.py`. On Colab: zip the splits (`python scripts/zip_for_colab.py`), upload to `My Drive/snakecheck/data.zip`, and run `SnakeCheck_Training.ipynb`. Each run saves the model, `config.json` (classes and the venomous threshold the app must use) and `metrics.json` for val, test and test_external.
+
 ## Status
 
 The original dataset (about 11,800 images) is lost. The new data pipeline is in place (see above); the data still has to be downloaded.
@@ -118,9 +123,8 @@ Results from the last run, from the notebook outputs:
 
 - [x] Leak-free, reproducible data pipeline with a frozen eval set.
 - [ ] Download the dataset and freeze the eval set.
-- [ ] Update `train.py` and the notebook to read `train/` and `val/` folders instead of splitting by image, and to report on `test` and `test_external`.
-- [ ] Evaluate on a real held-out test split. The old notebook evaluated on the full dataset (and used it as validation data during training), so the numbers above are optimistic.
-- [ ] Fix the threshold tuning direction. The 0.52 venomous threshold pushes predictions away from venomous, which is the wrong bias for a safety app.
-- [ ] Decide between the PRD's binary classifier and the 5-class setup.
-- [ ] Add `requirements.txt` for training (`requirements-data.txt` covers the data scripts).
+- [x] `train.py` and the notebook train on the frozen splits and report on `test` and `test_external`.
+- [ ] Train and evaluate on the new held-out test sets. The old notebook evaluated on the full dataset (and used it as validation data during training), so the old numbers are optimistic.
+- [x] Threshold now picked on val to catch at least 95% of venomous snakes (sum of the venomous class probabilities).
+- [x] `requirements-train.txt` for local training (`requirements-data.txt` covers the data scripts).
 - [ ] Export TFLite once the gates pass, then build the mobile app.
