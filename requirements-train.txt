@@ -1,0 +1,4 @@
+-r requirements-data.txt
+tensorflow>=2.15
+matplotlib
+seaborn

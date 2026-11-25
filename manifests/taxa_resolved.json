@@ -1,0 +1,171 @@
+{
+  "exclude_places": {
+    "external_test": [],
+    "main": [
+      {
+        "id": 96902,
+        "name": "Telangana, IN"
+      }
+    ]
+  },
+  "places": {
+    "external_test": [
+      {
+        "id": 96902,
+        "name": "Telangana, IN"
+      }
+    ],
+    "main": [
+      {
+        "id": 6681,
+        "name": "India"
+      }
+    ]
+  },
+  "taxa": {
+    "Agamidae": {
+      "id": 31096,
+      "name": "Agamidae",
+      "observations_count": 310797,
+      "rank": "family"
+    },
+    "Ahaetulla nasuta": {
+      "id": 68528,
+      "name": "Ahaetulla nasuta",
+      "observations_count": 739,
+      "rank": "species"
+    },
+    "Amphiesma stolatum": {
+      "id": 29832,
+      "name": "Amphiesma stolatum",
+      "observations_count": 2603,
+      "rank": "species"
+    },
+    "Anguilliformes": {
+      "id": 47314,
+      "name": "Anguilliformes",
+      "observations_count": 95302,
+      "rank": "order"
+    },
+    "Boiga trigonata": {
+      "id": 27650,
+      "name": "Boiga trigonata",
+      "observations_count": 447,
+      "rank": "species"
+    },
+    "Bungarus caeruleus": {
+      "id": 96224,
+      "name": "Bungarus caeruleus",
+      "observations_count": 1042,
+      "rank": "species"
+    },
+    "Coelognathus helena": {
+      "id": 30264,
+      "name": "Coelognathus helena",
+      "observations_count": 1252,
+      "rank": "species"
+    },
+    "Crassiclitellata": {
+      "id": 152943,
+      "name": "Crassiclitellata",
+      "observations_count": 188419,
+      "rank": "order"
+    },
+    "Daboia russelii": {
+      "id": 30687,
+      "name": "Daboia russelii",
+      "observations_count": 1618,
+      "rank": "species"
+    },
+    "Dendrelaphis tristis": {
+      "id": 26654,
+      "name": "Dendrelaphis tristis",
+      "observations_count": 1172,
+      "rank": "species"
+    },
+    "Echis carinatus": {
+      "id": 31079,
+      "name": "Echis carinatus",
+      "observations_count": 1438,
+      "rank": "species"
+    },
+    "Eryx conicus": {
+      "id": 32205,
+      "name": "Eryx conicus",
+      "observations_count": 849,
+      "rank": "species"
+    },
+    "Eryx johnii": {
+      "id": 32227,
+      "name": "Eryx johnii",
+      "observations_count": 398,
+      "rank": "species"
+    },
+    "Fowlea piscator": {
+      "id": 966799,
+      "name": "Fowlea piscator",
+      "observations_count": 4641,
+      "rank": "species"
+    },
+    "Gymnophiona": {
+      "id": 27880,
+      "name": "Gymnophiona",
+      "observations_count": 4018,
+      "rank": "order"
+    },
+    "Indotyphlops braminus": {
+      "id": 539844,
+      "name": "Indotyphlops braminus",
+      "observations_count": 10210,
+      "rank": "species"
+    },
+    "Lycodon aulicus": {
+      "id": 29574,
+      "name": "Lycodon aulicus",
+      "observations_count": 1538,
+      "rank": "species"
+    },
+    "Lycodon striatus": {
+      "id": 29553,
+      "name": "Lycodon striatus",
+      "observations_count": 293,
+      "rank": "species"
+    },
+    "Naja naja": {
+      "id": 53492,
+      "name": "Naja naja",
+      "observations_count": 2757,
+      "rank": "species"
+    },
+    "Oligodon arnensis": {
+      "id": 29273,
+      "name": "Oligodon arnensis",
+      "observations_count": 477,
+      "rank": "species"
+    },
+    "Ptyas mucosa": {
+      "id": 28868,
+      "name": "Ptyas mucosa",
+      "observations_count": 6005,
+      "rank": "species"
+    },
+    "Python molurus": {
+      "id": 32150,
+      "name": "Python molurus",
+      "observations_count": 1281,
+      "rank": "species"
+    },
+    "Scincidae": {
+      "id": 36982,
+      "name": "Scincidae",
+      "observations_count": 464363,
+      "rank": "family"
+    },
+    "Varanidae": {
+      "id": 39392,
+      "name": "Varanidae",
+      "observations_count": 93598,
+      "rank": "family"
+    }
+  }
+}

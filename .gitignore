@@ -7,3 +7,4 @@ logs/
 __pycache__/
 .ipynb_checkpoints/
 .venv/
+.pytest_cache/
