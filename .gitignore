@@ -1,0 +1,9 @@
+data/
+models/
+logs/
+*.zip
+*.tflite
+*.keras
+__pycache__/
+.ipynb_checkpoints/
+.venv/
