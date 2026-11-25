@@ -151,6 +151,7 @@ def build(cfg: dict, paths: Paths, freeze=False, refreeze=False, force_small=Fal
                              "the catalog must stay append-only.")
         for members in groups.values():
             fz = {frozen[rows[i]["image_id"]] for i in members if rows[i]["image_id"] in frozen}
+            has_main = any(rows[i]["pool"] == "main" for i in members)
             for i in members:
                 r = rows[i]
                 if r["image_id"] in frozen:
@@ -164,6 +165,9 @@ def build(cfg: dict, paths: Paths, freeze=False, refreeze=False, force_small=Fal
                     r["split"], r["reason"] = "excluded", f"same observer/photo as frozen {'/'.join(sorted(fz))}"
                 elif r["pool"] == "main":
                     r["split"], r["reason"] = "train", "not in frozen eval set"
+                elif has_main:
+                    # Same observer/photo as training data: never put it in the external test.
+                    r["split"], r["reason"] = "excluded", "external photo shares observer/photo with main pool"
                 elif extend_external:
                     r["split"], r["reason"] = "test_external", "added to external test"
                 else:
